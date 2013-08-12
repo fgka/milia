@@ -1,8 +1,8 @@
 PATH
   remote: ../../../milia
   specs:
-    milia (0.3.37)
-      devise (= 2.1.2)
+    milia (0.3.39)
+      devise (~> 2.2.3)
       rails (= 3.2.13)
 
 GEM
@@ -37,7 +37,7 @@ GEM
       multi_json (~> 1.0)
     ansi (1.4.3)
     arel (3.0.2)
-    bcrypt-ruby (3.0.1)
+    bcrypt-ruby (3.1.1)
     builder (3.0.4)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
@@ -47,7 +47,7 @@ GEM
       execjs
     coffee-script-source (1.6.2)
     daemons (1.1.9)
-    devise (2.1.2)
+    devise (2.2.6)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
       railties (~> 3.1)
@@ -141,7 +141,7 @@ GEM
     uglifier (2.1.1)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
-    warden (1.2.1)
+    warden (1.2.3)
       rack (>= 1.0)
 
 PLATFORMS
@@ -149,7 +149,7 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-rails (> 3.2)
-  devise (>= 2.1.2)
+  devise (~> 2.2.3)
   execjs
   factory_girl_rails (~> 1.2)
   foreman

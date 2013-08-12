@@ -21,12 +21,12 @@ performance hit, was seriously time-consuming to backup and restore, was invasiv
 into the Rails code structure (monkey patching), was complex to implement, and
 couldn't use Rails migration tools as-is.
 
-A tenant == an organization; users == members of the organization. 
-Only organizations sign up for new tenants, not members (users).  
-The very first user of an organization, let's call him the Organizer, 
+A tenant == an organization; users == members of the organization.
+Only organizations sign up for new tenants, not members (users).
+The very first user of an organization, let's call him the Organizer,
 is the one responsible for initiating the organizational signup.
-The Organizer becomes the first member (user) of the organization (tenant). 
-Thereafter, other members only obtain entry to the organization (tenant) 
+The Organizer becomes the first member (user) of the organization (tenant).
+Thereafter, other members only obtain entry to the organization (tenant)
 by invitation. New tenants are not created for every new user.
 
 ## Structure
@@ -37,7 +37,7 @@ by invitation. New tenants are not created for every new user.
 ## Dependency requirements
 
 * Rails 3.2 or higher
-* Devise 2.1.2 or higher
+* Devise 2.2.3 or higher
 
 ## Installation
 
@@ -52,7 +52,7 @@ Or in the Gemfile:
 ```ruby
   gem 'milia'
 ```
-  
+
 ## Getting started
 
 ### Rails setup
@@ -64,7 +64,7 @@ Milia expects a user session, so please set one up
       invoke  active_record
       create    db/migrate/20111012060818_add_sessions_table.rb
 ```
-  
+
 ### Devise setup
 
 * See https://github.com/plataformatec/devise for how to set up devise.
@@ -115,7 +115,7 @@ universal tables require a tenant_id field which will always be nil.
 class CreateTenants < ActiveRecord::Migration
   def change
     create_table :tenants do |t|
-      t.references :tenant      # tenant to which belongs; nil is UNIVERSAL 
+      t.references :tenant      # tenant to which belongs; nil is UNIVERSAL
       t.string  :cname,  :limit => 80, :null => false
       t.string  :company, :limit => 50
       t.timestamps
@@ -147,7 +147,7 @@ add the following line AFTER the devise-required filter for authentications:
       email = ( params.nil? || params[:user].nil?  ?  ""  : " as: " + params[:user][:email] )
 
       flash[:notice] = "cannot sign you in#{email}; check email/password and try again"
-      
+
       return false  # abort the before_filter chain
     end
 
@@ -155,9 +155,9 @@ add the following line AFTER the devise-required filter for authentications:
     raise SecurityError,"*** invalid sign-in  ***" unless user_signed_in?
 
     set_current_tenant   # relies on current_user being non-nil
-    
+
     # any application-specific environment set up goes here
-    
+
     true  # allows before filter chain to continue
   end
 
@@ -188,7 +188,7 @@ You'll need to place prep_signup_view method in application_controller.rb; it se
     return option_obj if option_obj.instance_of?(klass)
     option_obj ||= {}  # if nil, makes it empty hash
     return klass.send( :new, option_obj )
-  end  
+  end
 
 # ------------------------------------------------------------------------------
   # prep_signup_view -- prepares for the signup view
@@ -216,27 +216,27 @@ Add the following line into the devise_for :users block
 ```ruby
   devise_for :users, :controllers => { :registrations => "milia/registrations" }
 ```
-  
+
 ### Designate which model determines account
 
 Add the following acts_as_... to designate which model will be used as the key
-into tenants_users to find the tenant for a given user. 
+into tenants_users to find the tenant for a given user.
 Only designate one model in this manner.
 
 <i>app/models/user.rb</i>
 
 ```ruby
   class User < ActiveRecord::Base
-    
+
     acts_as_universal_and_determines_account
-  
+
   end  # class User
 ```
 
 ### Designate which model determines tenant
 
 Add the following acts_as_... to designate which model will be used as the
-tenant model. It is this id field which designates the tenant for an entire 
+tenant model. It is this id field which designates the tenant for an entire
 group of users which exist within a single tenanted domain.
 Only designate one model in this manner.
 
@@ -244,9 +244,9 @@ Only designate one model in this manner.
 
 ```ruby
   class Tenant < ActiveRecord::Base
-    
+
     acts_as_universal_and_determines_tenant
-    
+
   end  # class Tenant
 ```
 
@@ -254,20 +254,20 @@ Only designate one model in this manner.
 
 Add the following acts_as_universal to *ALL* models which are to be universal and
 remove any superfluous
-  
+
 ```ruby
   belongs_to  :tenant
 ```
-  
+
 which the generator might have generated ( acts_as_tenant will specify that ).
 
 <i>app/models/eula.rb</i>
 
 ```ruby
   class Eula < ActiveRecord::Base
-    
+
     acts_as_universal
-  
+
   end  # class Eula
 ```
 
@@ -275,20 +275,20 @@ which the generator might have generated ( acts_as_tenant will specify that ).
 
 Add the following acts_as_tenant to *ALL* models which are to be tenanted and
 remove any superfluous
-  
+
 ```ruby
   belongs_to  :tenant
 ```
-  
+
 which the generator might have generated ( acts_as_tenant will specify that ).
 
 <i>app/models/post.rb</i>
 
 ```ruby
   class Post < ActiveRecord::Base
-    
+
     acts_as_tenant
-  
+
   end  # class Post
 ```
 
@@ -307,7 +307,7 @@ which the generator might have generated ( acts_as_tenant will specify that ).
 ```ruby
   Tenant.create_new_tenant(params)   # see sample code below
 ```
-  
+
 where the sign-up params are passed, the new tenant must be validated, created,
 and then returned. Any other kinds of prepatory processing are permitted here,
 but should be minimal, and should not involve any tenanted models. At this point
@@ -318,14 +318,14 @@ immediately after the new tenant has been created).
 
 ```ruby
   def self.create_new_tenant(params)
-    
+
     tenant = Tenant.new(:cname => params[:user][:email], :company => params[:tenant][:company])
 
     if new_signups_not_permitted?(params)
-      
-      raise ::Milia::Control::MaxTenantExceeded, "Sorry, new accounts not permitted at this time" 
-      
-    else 
+
+      raise ::Milia::Control::MaxTenantExceeded, "Sorry, new accounts not permitted at this time"
+
+    else
       tenant.save    # create the tenant
     end
     return tenant
@@ -337,7 +337,7 @@ immediately after the new tenant has been created).
 ```ruby
   Tenant.tenant_signup(user,tenant,other)   # see sample code below
 ```
-  
+
 The purpose here is to do any tenant initialization AFTER devise
 has validated and created a user. Objects for the user and tenant
 are passed.  It is recommended that only minimal processing be done
@@ -364,7 +364,7 @@ work in setting things up for a new tenant.
 ### View for Organizer sign ups
 
 This example shows how to display a signup form together with recaptcha and eula display & acceptance.
-The exact nature of eula is not relevant to milia usage. 
+The exact nature of eula is not relevant to milia usage.
 You can ignore it, if you wish.
 It also shows usage of an optional coupon field
 for whatever reason you might need. If you're not familiar with haml, leading spaces are significant
@@ -380,17 +380,17 @@ Leading "." indicate div class; "#" indicates a div ID.
     %input{ :name => :eula_id, :value => @eula.id.to_s, :type => :hidden }
     %fieldset
       %h3 create a new account for your organization or group
-      
+
       = f.label( :email, 'Email*', {:title => "Enter a valid email address for your user ID; this is how your account will be accessed"} )
       = f.text_field( :email )
       = fields_for( :tenant ) do |w|
-        = w.label( :company, 'organization*', {:title => "This is a name for your group or organization for the account."} ) 
+        = w.label( :company, 'organization*', {:title => "This is a name for your group or organization for the account."} )
         = w.text_field( :company)
       = label_tag( 'coupon', 'coupon', {:title => "optional promotional code"} )
       = text_field_tag("coupon", @coupon.to_s, :size => 5 )
-      %br 
+      %br
       %p *required; cursor any label for help
-      %br 
+      %br
 
       #dynamic_recaptcha
         :javascript
@@ -407,7 +407,7 @@ Leading "." indicate div class; "#" indicates a div ID.
     %fieldset
       = label_tag(:eula,"terms of service*",{:title => "you are agreeing to these terms of service when you sign up"} )
       = text_area_tag(:eula, @eula.eula_text, :class => "legal", :readonly => true)
-      %br 
+      %br
       %p{:style => "display:block;padding: 1.5em 0;"}
         = @eula.click_msg
 
@@ -421,7 +421,7 @@ to provide some type of mechanism to allow the user to choose which account
 to put:
 
 <i>app/controllers/any_controller.rb</i>
-  
+
 ```ruby
   set_current_tenant( new_tenant_id )
 ```
@@ -431,10 +431,10 @@ to put:
 Subordinate join tables will not get the Rails default scope.
 Theoretically, the default scope on the master table alone should be sufficient
 in restricting answers to the current_tenant alone .. HOWEVER, it doesn't feel
-right. 
+right.
 
 If the master table for the join is a universal table, however, you really *MUST*
-use the following workaround, otherwise the database will access data in other 
+use the following workaround, otherwise the database will access data in other
 tenanted areas even if no records are returned. This is a potential security
 breach. Further details can be found in various discussions about the
 behavior of databases such as POSTGRES.
@@ -450,11 +450,11 @@ for each of the subordinate models in the join.
 
 ## console
 
-Note that even when running the console ($ rails console) will be run in 
+Note that even when running the console ($ rails console) will be run in
 multi-tenanting mode. You will need to establish a current_user and
 setup the current_tenant, otherwise most Model DB accesses will fail.
 
-For the author's own application, I have set up a small ruby file which I 
+For the author's own application, I have set up a small ruby file which I
 load when I start the console. This does the following:
 
 ```ruby
@@ -484,7 +484,7 @@ at: http://myrailscraft.blogspot.com/2013/05/multi-tenanting-ruby-on-rails.html
 
 
 ## Contributing to milia
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
