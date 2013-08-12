@@ -3,6 +3,10 @@
 Milia is a multi-tenanting gem for hosted Rails 3.2 applications which uses
 the devise gem for user authentication.
 
+## NOTE: This is a fork of the original milia: (https://github.com/dsaronin/milia)[https://github.com/dsaronin/milia]
+
+Please prefer to original to this one, since this an experiment.
+
 ## Basic concepts
 
 * should be transparent to the main application code
