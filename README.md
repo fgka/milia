@@ -5,7 +5,7 @@ the devise gem for user authentication.
 
 ## NOTE: This is a fork of the original [milia](https://github.com/dsaronin/milia)
 
-Please prefer to original to this one, since this an experiment.
+Please prefer to original to this one, since this is an experiment.
 
 ## Basic concepts
 
